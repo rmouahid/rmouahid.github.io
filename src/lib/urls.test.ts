@@ -1,19 +1,20 @@
 import { expect, it } from 'vitest';
-import { asset, route, alternate } from './urls';
+import { asset, resolveHref, route } from './urls';
 
 it.each([
-  ['/', 'en', '/', '/'],
-  ['/toolkit/', 'en', '/docs', '/toolkit/docs'],
-  ['/toolkit/', 'pt-br', '/integrations/editor', '/toolkit/pt-br/integrations/editor'],
-  ['/toolkit/', 'pt-br', '/docs#install', '/toolkit/pt-br/docs#install'],
-] as const)('composes %s %s %s', (base, locale, path, result) => expect(route(path, locale, base)).toBe(result));
+  ['/', '/', '/'],
+  ['/portfolio/', '/', '/portfolio'],
+  ['/portfolio/', '/projects/rag-agent', '/portfolio/projects/rag-agent'],
+  ['/portfolio/', '/about#stack', '/portfolio/about#stack'],
+] as const)('composes base %s with %s', (base, path, result) => expect(route(path, base)).toBe(result));
 
-it('switches locale without duplicating the base', () => {
-  expect(alternate('/toolkit/pt-br/docs/', 'en', '/toolkit/')).toBe('/toolkit/docs');
-  expect(alternate('/toolkit/docs', 'pt-br', '/toolkit/')).toBe('/toolkit/pt-br/docs');
+it('resolves site paths and leaves external links alone', () => {
+  expect(resolveHref('/rayan-mouahid-cv.pdf', '/portfolio/')).toBe('/portfolio/rayan-mouahid-cv.pdf');
+  expect(resolveHref('https://github.com/rmouahid', '/portfolio/')).toBe('https://github.com/rmouahid');
+  expect(resolveHref('mailto:someone@example.com', '/portfolio/')).toBe('mailto:someone@example.com');
 });
 
-it('resolves assets from the base without a locale prefix', () => {
+it('resolves assets from the base', () => {
   expect(asset('/favicon.svg', '/')).toBe('/favicon.svg');
-  expect(asset('/images/example.svg', '/toolkit/')).toBe('/toolkit/images/example.svg');
+  expect(asset('/og/rag-agent.png', '/portfolio/')).toBe('/portfolio/og/rag-agent.png');
 });

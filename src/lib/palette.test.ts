@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { ui } from '../i18n/ui';
 import { ansiColors, cssVariables, swatchGroups, VARIANTS } from './palette';
 
 describe('swatchGroups', () => {
@@ -41,15 +40,5 @@ describe('cssVariables', () => {
     const [dark, light] = VARIANTS.map(v => Object.keys(cssVariables(v)).sort());
 
     expect(light).toEqual(dark);
-  });
-});
-
-describe('role notes', () => {
-  it('describes every palette role in the UI dictionary', () => {
-    for (const group of swatchGroups('dark')) {
-      for (const swatch of group.items) {
-        expect(ui.en[`role.${swatch.role}` as keyof typeof ui.en], swatch.role).toBeTruthy();
-      }
-    }
   });
 });

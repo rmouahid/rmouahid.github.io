@@ -1,18 +1,14 @@
 # Credits
 
-The visual system comes from Terminal Noir: a dark Noir mode and a light Paper mode. The palette in this starter is
-vendored at `src/data/palette.json`. The Shiki themes are vendored at `src/data/shiki/`.
+This portfolio is built on the [Terminal Noir Astro Theme](https://github.com/nandomoreirame/terminalnoir-astro-theme)
+by Fernando Moreira, under the MIT license (see `LICENSE`). The design system is kept as shipped: the Noir and Paper
+palettes in `src/data/palette.json`, the Shiki theme in `src/data/shiki/` and the layout components.
 
-Fonts are loaded from Fontsource:
+Fonts:
 
-- Inter, variable, under the SIL Open Font License
-- Newsreader, variable, under the SIL Open Font License
-- JetBrains Mono, variable, under the SIL Open Font License
+- Inter, Newsreader and JetBrains Mono (variable), loaded from Fontsource, under the SIL Open Font License.
+- `src/assets/fonts/Newsreader.ttf` and `JetBrainsMono.ttf`, from Google Fonts, used only to draw the Open Graph cards
+  at build time. Their licenses are next to them (`OFL-*.txt`).
 
-Icons use Iconify sets that ship with the starter: Lucide (`@iconify-json/lucide`) and Simple Icons
-(`@iconify-json/simple-icons`) for the GitHub mark. Those sets keep their own licenses.
-
-`public/images/example.svg` and `public/og-image.svg` were drawn for this starter. They are not screenshots of another
-product. Replace the social SVG with a 1200 by 630 PNG before publishing. SVG is not accepted by every social platform.
-
-The starter is MIT licensed. See `LICENSE`. Copyright (c) 2026 Fernando Moreira.
+Icons use the Iconify sets Lucide (`@iconify-json/lucide`) and Simple Icons (`@iconify-json/simple-icons`). Diagrams in
+case studies are drawn in the browser by [Mermaid](https://mermaid.js.org/) (MIT).
