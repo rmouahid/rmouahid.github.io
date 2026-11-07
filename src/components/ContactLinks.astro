@@ -1,0 +1,26 @@
+---
+import { Icon } from 'astro-icon/components';
+import { getContactLinks } from '../lib/ctas';
+
+const links = getContactLinks(import.meta.env.BASE_URL);
+---
+
+<ul class="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center" aria-label="Contact and profiles">
+  {links.map((link, index) => (
+    <li>
+      <a
+        href={link.href}
+        data-contact={link.id}
+        class:list={[
+          'flex items-center justify-center gap-2 rounded px-4 py-2.5 font-mono text-sm transition-colors sm:px-5',
+          index === 0
+            ? 'bg-accent font-medium text-on-accent hover:opacity-95'
+            : 'border border-outline text-fg hover:border-accent',
+        ]}
+      >
+        <Icon name={link.icon} class:list={['size-4', index > 0 && 'text-muted']} aria-hidden="true" />
+        {link.label}
+      </a>
+    </li>
+  ))}
+</ul>

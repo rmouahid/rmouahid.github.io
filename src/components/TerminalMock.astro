@@ -1,14 +1,18 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { site } from '../config/site';
-import { getI18n } from '../i18n/context';
 
-const { t } = getI18n(Astro.currentLocale);
+interface Props {
+  /** Slugs listed by the `ls` line, usually the featured projects. */
+  projects?: string[];
+}
+
+const { projects = [] } = Astro.props;
 ---
 
 <figure
   class="overflow-hidden rounded border border-hairline bg-raised font-mono text-xs shadow-2xl"
-  aria-label={t('terminal.label')}
+  aria-label="Terminal summary of the profile"
 >
   <div
     class="flex h-9 items-center justify-between border-b border-hairline bg-elevated px-4 select-none"
@@ -26,16 +30,34 @@ const { t } = getI18n(Astro.currentLocale);
     <div class="w-10 text-right text-[10px] text-faint">utf-8</div>
   </div>
 
-  <div class="space-y-2 overflow-x-auto bg-base p-5 leading-relaxed text-fg" aria-hidden="true">
-    <p class="text-faint">$ noir status</p>
-    <p>
-      <span class="text-success">ok</span> example editor
+  <div class="space-y-2 overflow-x-auto bg-base p-5 leading-relaxed text-fg">
+    <p class="text-faint" aria-hidden="true">
+      $ whoami
+    </p>
+    <p>{site.role}</p>
+    <p class="text-faint" aria-hidden="true">
+      $ cat focus.txt
+    </p>
+    <p>LLM &amp; RAG systems · vector search · MCP servers · data pipelines</p>
+    {projects.length > 0 && (
+      <>
+        <p class="text-faint" aria-hidden="true">
+          $ ls projects --featured
+        </p>
+        <p class="flex flex-wrap gap-x-4">
+          {projects.map(slug => (
+            <span class="text-info">{slug}/</span>
+          ))}
+        </p>
+      </>
+    )}
+    <p class="text-faint" aria-hidden="true">
+      $ status
     </p>
     <p>
-      <span class="text-success">ok</span> example terminal
+      <span class="text-success">open</span> AI internship · 6 months · from March 2027
     </p>
-    <p class="text-faint">{t('terminal.demo')}</p>
-    <p>
+    <p aria-hidden="true">
       <span class="text-accent">$</span>
       <span class="cursor"></span>
     </p>

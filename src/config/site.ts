@@ -1,105 +1,82 @@
 import { z } from 'zod';
 
-const webUrl = z
-  .string()
-  .url()
-  .refine(value => ['https:', 'http:'].includes(new URL(value).protocol));
+const webUrl = z.url().refine(value => ['https:', 'http:'].includes(new URL(value).protocol));
 
 export function resolveSiteUrl(value: string | undefined): string {
   const trimmed = value?.trim() ?? '';
-  if (!trimmed) return 'https://example.com';
+  if (!trimmed) return 'https://rmouahid.github.io';
   return webUrl.parse(trimmed);
 }
+
+// A site path ("/projects", "/cv.pdf", "/about#stack"), resolved against the deployment base.
+const sitePath = z.string().regex(/^\/(?!\/)[a-z0-9/._-]*(?:#[a-z0-9-]+)?$/);
+const mailto = z.string().regex(/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/);
+
 const action = z.object({
   label: z.string().min(1),
-  href: z.union([z.literal('repository'), z.string().regex(/^\/(?!\/)[a-z0-9/-]*(?:#[a-z0-9-]+)?$/), webUrl]),
+  href: z.union([sitePath, webUrl, mailto]),
 });
-const ctas = z.object({
-  header: action,
-  hero: z.object({ primary: action, secondary: action }),
-  box: z.object({
-    eyebrow: z.string().min(1),
-    title: z.string().min(1),
-    body: z.string().min(1),
-    primary: action,
-    secondary: action,
-  }),
-});
+
 const schema = z.object({
   name: z.string().min(1),
   terminalLabel: z.string().min(1),
   url: webUrl,
-  repository: webUrl,
-  author: z.string().min(1),
-  version: z.string().min(1),
-  ctas: z.object({ en: ctas, 'pt-br': ctas }),
-  nav: z.array(z.object({ href: z.string().regex(/^\/(?!\/)[a-z0-9/-]*$/), key: z.string().min(1) })),
-  hero: z.object({
-    en: z.object({ title: z.string(), description: z.string() }),
-    'pt-br': z.object({ title: z.string(), description: z.string() }),
+  role: z.string().min(1),
+  tagline: z.string().min(1),
+  availability: z.string().min(1),
+  location: z.string().min(1),
+  links: z.object({
+    github: webUrl,
+    linkedin: webUrl,
+    email: z.email(),
+    cv: sitePath,
   }),
-  install: z.array(
-    z.object({ id: z.string().regex(/^[a-z0-9-]+$/), label: z.string().min(1), command: z.string().min(1) }),
-  ),
+  ctas: z.object({
+    header: action,
+    box: z.object({
+      eyebrow: z.string().min(1),
+      title: z.string().min(1),
+      body: z.string().min(1),
+      primary: action,
+      secondary: action,
+    }),
+  }),
+  nav: z.array(z.object({ href: z.string().regex(/^\/(?!\/)[a-z0-9/-]*$/), label: z.string().min(1) })),
 });
 
+export type Site = z.infer<typeof schema>;
 export const parseSite = (value: unknown) => schema.parse(value);
+
+const email = 'prorayanmouahid@gmail.com';
+const cv = '/rayan-mouahid-cv.pdf';
+
 export const site = parseSite({
-  name: 'Noir CLI',
-  terminalLabel: '~/noir-cli',
+  name: 'Rayân Mouahid',
+  terminalLabel: '~/rayan-mouahid',
   url: resolveSiteUrl(process.env.SITE_URL),
-  repository: 'https://github.com/nandomoreirame/terminalnoir-astro-theme',
-  author: 'Your name',
-  version: '0.0.1',
+  role: 'AI engineering student · CY Tech, Paris',
+  tagline: 'AI engineering student building measured LLM & RAG systems.',
+  availability: 'Looking for an AI internship from March 2027',
+  location: 'Paris, France',
+  links: {
+    github: 'https://github.com/rmouahid',
+    linkedin: 'https://www.linkedin.com/in/rmouahid/',
+    email,
+    cv,
+  },
   ctas: {
-    en: {
-      header: { label: 'Get started', href: '/docs#quickstart' },
-      hero: {
-        primary: { label: 'Docs', href: '/docs' },
-        secondary: { label: 'Integrations', href: '/integrations' },
-      },
-      box: {
-        eyebrow: 'Open source',
-        title: 'Make it yours.',
-        body: 'Replace the name, domain and example integrations, then publish the static site.',
-        primary: { label: 'GitHub repository', href: 'repository' },
-        secondary: { label: 'Read the guide', href: '/docs' },
-      },
-    },
-    'pt-br': {
-      header: { label: 'Começar', href: '/docs#quickstart' },
-      hero: {
-        primary: { label: 'Documentação', href: '/docs' },
-        secondary: { label: 'Integrações', href: '/integrations' },
-      },
-      box: {
-        eyebrow: 'Código aberto',
-        title: 'Deixe com a sua cara.',
-        body: 'Troque o nome, o domínio e as integrações de exemplo, e publique o site estático.',
-        primary: { label: 'Repositório no GitHub', href: 'repository' },
-        secondary: { label: 'Ler o guia', href: '/docs' },
-      },
+    header: { label: 'Resume', href: cv },
+    box: {
+      eyebrow: 'Internship · March 2027',
+      title: 'Looking for an AI intern?',
+      body: 'I am looking for a 6-month AI / ML engineering internship starting March 2027. The fastest way to reach me is email.',
+      primary: { label: 'Email me', href: `mailto:${email}` },
+      secondary: { label: 'Download resume', href: cv },
     },
   },
   nav: [
-    { href: '/', key: 'nav.home' },
-    { href: '/about', key: 'nav.about' },
-    { href: '/integrations', key: 'nav.integrations' },
-    { href: '/docs', key: 'nav.docs' },
-    { href: '/showcase', key: 'nav.showcase' },
-  ],
-  hero: {
-    en: {
-      title: 'Build with clarity.',
-      description: 'A fictional developer tool demonstrating Terminal Noir Astro Theme.',
-    },
-    'pt-br': {
-      title: 'Desenvolva com clareza.',
-      description: 'Uma ferramenta fictícia para demonstrar o Terminal Noir Astro Theme.',
-    },
-  },
-  install: [
-    { id: 'npm', label: 'npm example', command: 'npm install example-package' },
-    { id: 'pnpm', label: 'pnpm example', command: 'pnpm add example-package' },
+    { href: '/', label: 'Home' },
+    { href: '/projects', label: 'Projects' },
+    { href: '/about', label: 'About' },
   ],
 });

@@ -1,56 +1,34 @@
-# Terminal Noir Astro Theme
+# Rayân Mouahid · Portfolio
 
-A static Astro starter for developer tools and open-source projects. It ships with Noir and Paper modes, bilingual
-pages, an integration showcase and local content you can replace.
+Case studies of my AI, LLM, RAG and data projects. GitHub holds the code; this site holds the documentation: the
+problem, the architecture, the technical choices, measured results and limitations of each project.
 
-The packaged example is a fictional product called Noir CLI. Nothing in the example installs or runs a real program.
+Built with Astro on the [Terminal Noir Astro Theme](https://github.com/nandomoreirame/terminalnoir-astro-theme)
+(`nandomoreirame/terminalnoir-astro-theme`, MIT). See `docs/credits.md`.
 
-## Pending demo assets
+## Structure
 
-Desktop, mobile, Noir and Paper screenshots of a deployed demo are pending. `public/og-image.svg` is a self-authored
-placeholder. Replace it with a 1200 by 630 PNG before you publish. SVG is not accepted by every social platform.
+| What                                                       | Where                                                                         |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Name, links, availability, navigation, calls to action     | `src/config/site.ts`                                                          |
+| Case studies (one Markdown file per project)               | `src/content/projects/`                                                       |
+| Case study frontmatter schema                              | `src/lib/projects.ts`, wired in `src/content.config.ts`                       |
+| Pages                                                      | `src/views/` (Home, Projects, ProjectDetail, About), routed from `src/pages/` |
+| Resume                                                     | `public/rayan-mouahid-cv.pdf`                                                 |
+| Open Graph cards (one PNG per project, generated at build) | `src/pages/og/[slug].png.ts`, `src/lib/og.ts`                                 |
 
-## Features
+## Develop
 
-- Noir (dark) and Paper (light) modes, remembered in the browser
-- English and Brazilian Portuguese, with a shared dictionary
-- Integration catalogue validated from `src/data/integrations.json`
-- Install commands shown as text, with keyboard tabs and copy feedback
-- Base-aware links for a site root or a GitHub Pages-style prefix
-
-## Node.js
-
-Use Node.js 22.22.0 or newer. `.nvmrc` selects the 22 line, and `package.json` sets `engines.node` to `>=22.22.0`.
-
-## Install
-
-After the public repository exists, start a project from the template:
-
-```sh
-npm create astro@latest -- --template nandomoreirame/terminalnoir-astro-theme
-```
-
-Until that repository exists, use this candidate directory and install from the lockfile:
+Node.js 22.22 or newer (`.nvmrc`).
 
 ```sh
 npm ci
-```
-
-`private` stays `true`. Share the starter as a GitHub template repository. Do not publish this package to npm.
-
-## Scripts
-
-```sh
 npm run dev
 npm run build
-npm run preview
-npm run verify
+npm run verify   # unit + contract tests, astro check, Prettier, import scan, browser matrix
 ```
 
-`npm run verify` runs the contract tests, unit tests, `astro check`, Prettier, the import scan, and the browser matrix
-for `/` and `/toolkit/`.
+The browser matrix needs Playwright's Chromium: `npx playwright install chromium`.
 
-## Customize
-
-Change the name, domain, navigation and install commands in `src/config/site.ts`. The rest of the map is in
-`docs/customization.md`. Deployment for any static host is in `docs/deployment.md`.
+`SITE_URL` and `SITE_BASE` set the public origin and the sub-path, for example
+`SITE_URL=https://rmouahid.github.io SITE_BASE=/portfolio/ npm run build`.

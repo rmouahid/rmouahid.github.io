@@ -1,21 +1,23 @@
 import { site } from '../config/site';
-import type { Locale } from '../i18n/locales';
-import { route } from './urls';
+import { resolveHref } from './urls';
 
-export function getCtas(locale: Locale, base: string) {
-  const ctas = site.ctas[locale];
-  const resolve = (action: { label: string; href: string }) => ({
-    ...action,
-    href:
-      action.href === 'repository'
-        ? site.repository
-        : action.href.startsWith('/')
-          ? route(action.href, locale, base)
-          : action.href,
-  });
+type Action = { label: string; href: string };
+
+export function getCtas(base: string) {
+  const resolve = (action: Action): Action => ({ ...action, href: resolveHref(action.href, base) });
+  const { header, box } = site.ctas;
   return {
-    header: resolve(ctas.header),
-    hero: { primary: resolve(ctas.hero.primary), secondary: resolve(ctas.hero.secondary) },
-    box: { ...ctas.box, primary: resolve(ctas.box.primary), secondary: resolve(ctas.box.secondary) },
+    header: resolve(header),
+    box: { ...box, primary: resolve(box.primary), secondary: resolve(box.secondary) },
   };
+}
+
+// Hero contact row: resume first, then the public profiles.
+export function getContactLinks(base: string) {
+  return [
+    { id: 'cv', label: 'Resume (PDF)', href: resolveHref(site.links.cv, base), icon: 'lucide:file-text' },
+    { id: 'github', label: 'GitHub', href: site.links.github, icon: 'simple-icons:github' },
+    { id: 'linkedin', label: 'LinkedIn', href: site.links.linkedin, icon: 'lucide:linkedin' },
+    { id: 'email', label: 'Email', href: `mailto:${site.links.email}`, icon: 'lucide:mail' },
+  ];
 }

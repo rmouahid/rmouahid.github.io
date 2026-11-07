@@ -1,38 +1,110 @@
 ---
+import { Icon } from 'astro-icon/components';
 import CtaBox from '../components/CtaBox.astro';
+import ContactLinks from '../components/ContactLinks.astro';
 import Section from '../components/Section.astro';
 import SectionHeader from '../components/SectionHeader.astro';
-import StepCard from '../components/StepCard.astro';
-import { getI18n } from '../i18n/context';
+import { site } from '../config/site';
 import Layout from '../layouts/Layout.astro';
 
-const { t } = getI18n(Astro.currentLocale);
-const rules = [1, 2, 3] as const;
+// Facts below come from the resume in public/. Keep both in sync.
+const timeline = [
+  {
+    when: 'Jul – Aug 2025',
+    title: 'Infrastructure intern · SYSETELE',
+    body: 'Designed and deployed a self-hosted RAG agent for the infrastructure team, using only open-source components and no cloud dependency. Packaged it to run the same way in Docker or on bare-metal servers.',
+  },
+  {
+    when: '2024 – now',
+    title: 'Engineering degree · CY Tech (formerly EISTI), Cergy',
+    body: 'Information systems engineering. Personal and course projects in LLM tooling, retrieval, data engineering and Java.',
+  },
+  {
+    when: '2023 – 2024',
+    title: 'Preparatory class (MP) · Lycée Albert Châtelet, Douai',
+    body: 'Mathematics and physics preparatory class for the French engineering schools.',
+  },
+  {
+    when: '2020 – 2023',
+    title: 'Preparatory classes (CPES, MPSI–MP) · Military High School of Aix-en-Provence',
+    body: 'Also section leader during a military leadership training in August 2022, in charge of 70 trainees.',
+  },
+];
+
+const stack = [
+  { group: 'Languages', items: ['Python', 'Java', 'JavaScript', 'SQL', 'C', 'HTML/CSS'] },
+  { group: 'AI & retrieval', items: ['NumPy', 'sentence-transformers', 'llama-cpp-python', 'local LLMs', 'MCP SDK'] },
+  { group: 'Data', items: ['PySpark', 'GraphFrames', 'Streamlit'] },
+  { group: 'Backend & infra', items: ['FastAPI', 'Docker / Compose', 'Node.js / Express', 'React', 'Linux VPS'] },
+  { group: 'Tools', items: ['Git / GitHub', 'Maven'] },
+];
+
+const languages = ['French — native', 'English — C2', 'Spanish — B2'];
 ---
 
-<Layout title={t('about.eyebrow')} description={t('about.metaDescription')}>
+<Layout title="About" description={`${site.name}: background, stack and resume.`}>
   <Section>
-    <SectionHeader eyebrow={t('about.eyebrow')} title={t('about.title')} level={1} />
+    <SectionHeader eyebrow="About" title="Background" level={1} />
     <div class="max-w-2xl space-y-4 text-muted">
-      <p>{t('about.p1')}</p>
-      <p>{t('about.p2')}</p>
+      <p>
+        I am an engineering student at CY Tech in the Paris area. I build AI systems end to end: retrieval pipelines,
+        vector indexes, local LLMs and MCP servers, and I measure them before I call them done.
+      </p>
+      <p>
+        I am looking for a 6-month AI / ML engineering internship starting <strong class="text-fg">March 2027</strong>.
+      </p>
+    </div>
+    <div class="mt-8">
+      <ContactLinks />
     </div>
   </Section>
 
   <Section>
-    <SectionHeader eyebrow={t('about.principlesEyebrow')} title={t('about.principlesTitle')} />
-    <ol class="grid grid-cols-1 gap-6 md:grid-cols-3">
-      {rules.map(n => (
-        <StepCard step={t(`about.rule${n}Label`)} title={t(`about.rule${n}Title`)}>
-          {t(`about.rule${n}`)}
-        </StepCard>
+    <SectionHeader eyebrow="Path" title="Experience & education" />
+    <ol class="space-y-4">
+      {timeline.map(item => (
+        <li class="grid grid-cols-1 gap-2 rounded border border-hairline bg-raised p-5 sm:grid-cols-[9rem_1fr] sm:gap-6">
+          <p class="font-mono text-xs text-accent">{item.when}</p>
+          <div class="space-y-2">
+            <h3 class="font-serif text-lg text-fg">{item.title}</h3>
+            <p class="text-sm leading-relaxed text-muted">{item.body}</p>
+          </div>
+        </li>
       ))}
     </ol>
   </Section>
 
-  <Section>
-    <SectionHeader eyebrow={t('about.creditsEyebrow')} title={t('about.creditsTitle')} />
-    <p class="max-w-2xl text-muted">{t('about.credits')}</p>
+  <Section id="stack">
+    <SectionHeader eyebrow="Toolbox" title="Stack" />
+    <dl class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {stack.map(group => (
+        <div class="space-y-3 rounded border border-hairline bg-raised p-5">
+          <dt class="font-mono text-xs tracking-wider text-faint uppercase">{group.group}</dt>
+          <dd>
+            <ul class="flex flex-wrap gap-1.5">
+              {group.items.map(item => (
+                <li class="rounded border border-hairline bg-elevated px-1.5 py-0.5 font-mono text-xs text-muted">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      ))}
+      <div class="space-y-3 rounded border border-hairline bg-raised p-5">
+        <dt class="font-mono text-xs tracking-wider text-faint uppercase">Spoken languages</dt>
+        <dd>
+          <ul class="space-y-1 text-sm text-muted">
+            {languages.map(language => (
+              <li class="flex items-center gap-2">
+                <Icon name="lucide:languages" class="size-3.5 text-faint" aria-hidden="true" />
+                {language}
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+    </dl>
   </Section>
 
   <Section last>
