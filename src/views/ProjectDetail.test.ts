@@ -17,6 +17,8 @@ it('links the repository, the stack and the section index', async () => {
   expect(html).toContain('href="https://github.com/rmouahid/rag-agent"');
   expect(html).toContain('NumPy');
   expect(html).toContain('href="#problem"');
+  expect(html).toContain('href="#tldr"');
+  expect(html).toMatch(/<h2 id="tldr">TL;DR<\/h2>\s*<ul class="tldr">\s*<li>Result one<\/li>/);
   expect(html).not.toContain('href="#detail"');
   expect(html).toContain('/og/rag-agent.png');
   expect(html).not.toContain('<img');

@@ -134,6 +134,17 @@
   .prose h2 {
     scroll-margin-top: 5rem;
   }
+  .prose .tldr {
+    padding: 1rem 1rem 1rem 2.25rem;
+    border: 1px solid var(--color-hairline);
+    border-left: 2px solid var(--color-accent);
+    border-radius: 4px;
+    background: var(--color-raised);
+    color: var(--color-fg);
+  }
+  .prose h2:first-child {
+    margin-top: 0;
+  }
   .prose blockquote {
     padding-left: 1rem;
     border-left: 2px solid var(--color-accent);
