@@ -1,0 +1,38 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { tagKey } from '../lib/projects';
+import { route } from '../lib/urls';
+
+interface Props {
+  project: Pick<CollectionEntry<'projects'>, 'id' | 'data'>;
+  headingLevel?: 2 | 3;
+}
+
+const { project, headingLevel = 3 } = Astro.props;
+const { title, summary, tags, status, date } = project.data;
+const Heading = headingLevel === 2 ? 'h2' : 'h3';
+const href = route(`/projects/${project.id}`, import.meta.env.BASE_URL);
+const search = [title, summary, ...tags, ...project.data.stack].join(' ').toLowerCase();
+---
+
+<li data-project data-search={search} data-tags={tags.map(tagKey).join(' ')}>
+  <article class="group relative flex h-full flex-col justify-between gap-6 rounded border border-hairline bg-raised p-5 transition-colors duration-150 focus-within:border-accent hover:border-accent">
+    <div class="space-y-3">
+      <p class="flex items-center justify-between gap-3 font-mono text-[11px] text-faint">
+        <span>{date.getFullYear()}</span>
+        {status === 'archived' && <span class="rounded border border-hairline px-1.5 py-0.5">archived</span>}
+      </p>
+      <Heading class="font-mono text-sm font-semibold text-fg transition-colors group-hover:text-accent">
+        <a href={href} class="after:absolute after:inset-0">
+          {title}
+        </a>
+      </Heading>
+      <p class="text-sm leading-relaxed text-muted">{summary}</p>
+    </div>
+    <ul class="flex flex-wrap gap-1.5" aria-label="Tags">
+      {tags.map(tag => (
+        <li class="rounded border border-hairline bg-elevated px-1.5 py-0.5 font-mono text-[11px] text-muted">{tag}</li>
+      ))}
+    </ul>
+  </article>
+</li>
