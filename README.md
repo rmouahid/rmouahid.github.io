@@ -17,6 +17,30 @@ Built with Astro on the [Terminal Noir Astro Theme](https://github.com/nandomore
 | Resume                                                     | `public/rayan-mouahid-cv.pdf`                                                 |
 | Open Graph cards (one PNG per project, generated at build) | `src/pages/og/[slug].png.ts`, `src/lib/og.ts`                                 |
 
+## Writing a case study
+
+Copy `src/content/projects/_template.md` to `<slug>.md`. The frontmatter is validated at build time
+(`src/lib/projects.ts`):
+
+| Field               | Type                   | Notes                                           |
+| ------------------- | ---------------------- | ----------------------------------------------- |
+| `title`             | string                 | as on GitHub                                    |
+| `summary`           | string                 | one line, 160 characters max                    |
+| `tldr`              | 1–3 strings            | at least one number; drawn as the TL;DR section |
+| `tags`              | strings                | catalogue filters (LLM, RAG, MCP, Data, Java…)  |
+| `stack`             | strings                |                                                 |
+| `featured`          | boolean                | home page, 3 max                                |
+| `order`             | integer                | lower first, default 100                        |
+| `repo`              | URL                    |                                                 |
+| `demo`              | URL                    | optional                                        |
+| `cover`, `coverAlt` | image, string          | optional; alt text required with a cover        |
+| `status`            | `active` \| `archived` | default `active`                                |
+| `date`              | date                   |                                                 |
+
+The body has exactly these sections, in this order: Problem, Architecture (Mermaid diagram or image), Technical choices
+& trade-offs, Results (table or chart), Limitations & next steps, Links. `npm test` checks the structure; write `TODO:`
+for anything not measured yet.
+
 ## Develop
 
 Node.js 22.22 or newer (`.nvmrc`).
