@@ -1,16 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
-test('showcase tabs work with the keyboard', async ({ page }) => {
-  await page.goto('showcase');
-  const tabs = page.getByRole('tablist').first().getByRole('tab');
-  await tabs.first().focus();
-  await page.keyboard.press('End');
-  await expect(tabs.last()).toHaveAttribute('aria-selected', 'true');
-  await page.keyboard.press('Home');
-  await expect(tabs.first()).toBeFocused();
-});
-
 test('mode selection persists', async ({ page }) => {
   await page.goto('');
   await page.getByRole('button', { name: 'Paper', exact: true }).click();
@@ -28,61 +18,47 @@ test('mobile navigation is reachable from the keyboard', async ({ page }) => {
   await expect(links.nth(1)).toBeFocused();
 });
 
-test('escape closes the lightbox and returns focus', async ({ page }) => {
-  await page.goto('showcase');
-  const open = page.getByRole('button', { name: 'Full size' });
-  await open.focus();
-  await open.click();
-  const dialog = page.getByRole('dialog');
-  await expect(dialog).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(dialog).toBeHidden();
-  await expect(open).toBeFocused();
+test('the home page has no horizontal scroll at 375px', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  for (const path of ['', 'projects', 'about', 'projects/rag-agent']) {
+    await page.goto(path);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, path || 'home').toBeLessThanOrEqual(0);
+  }
 });
 
-test('integration search announces an empty result', async ({ page }) => {
-  await page.goto('integrations');
-  await page.getByRole('searchbox', { name: 'Search integrations' }).fill('zzzz-not-real');
-  await expect(page.getByText('No integration matches that search.')).toBeVisible();
-  await expect(page.locator('#search-status')).toContainText('0');
+test('project search announces an empty result', async ({ page }) => {
+  await page.goto('projects');
+  await page.getByRole('searchbox', { name: 'Search projects' }).fill('zzzz-not-real');
+  await expect(page.getByText('No project matches these filters.')).toBeVisible();
+  await expect(page.locator('#search-status')).toContainText('0 projects');
 });
 
-test('install tabs on one page do not share ids', async ({ page }) => {
-  await page.goto('showcase');
-  const ids = await page.getByRole('tab').evaluateAll(nodes => nodes.map(node => node.id));
-  expect(new Set(ids).size).toBe(ids.length);
-  expect(ids.length).toBeGreaterThan(1);
+test('tag filters narrow the list and survive a reload', async ({ page }) => {
+  await page.goto('projects');
+  const all = await page.locator('[data-project]').count();
+  const filter = page.getByRole('group', { name: 'Filter by tag' }).getByRole('button').nth(1);
+  const key = await filter.getAttribute('data-tag');
+  await filter.click();
+  await expect(filter).toHaveAttribute('aria-pressed', 'true');
+  const visible = page.locator('[data-project]:not([hidden])');
+  const shown = await visible.count();
+  expect(shown).toBeGreaterThan(0);
+  expect(shown).toBeLessThan(all);
+  for (const tags of await visible.evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.tags))) {
+    expect(tags?.split(' ')).toContain(key);
+  }
+  await page.reload();
+  await expect(page.locator('[data-project]:not([hidden])')).toHaveCount(shown);
+  await page.getByRole('button', { name: 'All', exact: true }).click();
+  await expect(page.locator('[data-project]:not([hidden])')).toHaveCount(all);
 });
 
-test('clipboard success and rejection are announced', async ({ page }) => {
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: { writeText: async () => {} },
-    });
-  });
+test('a project card opens its case study', async ({ page }) => {
   await page.goto('');
-  await page.getByRole('button', { name: 'Copy' }).first().click();
-  await expect(page.getByRole('status')).toHaveText('Copied to clipboard');
-});
-
-test('clipboard rejection is announced', async ({ browser, baseURL }) => {
-  const context = await browser.newContext({ baseURL });
-  await context.addInitScript(() => {
-    Object.defineProperty(navigator, 'clipboard', {
-      configurable: true,
-      value: {
-        writeText: async () => {
-          throw new Error('denied');
-        },
-      },
-    });
-  });
-  const page = await context.newPage();
-  await page.goto('');
-  await page.getByRole('button', { name: 'Copy' }).first().click();
-  await expect(page.getByRole('status')).toHaveText('Copy failed');
-  await context.close();
+  await page.locator('ul[aria-labelledby="featured-projects"] a').first().click();
+  await expect(page).toHaveURL(/\/projects\/[a-z0-9-]+$/);
+  await expect(page.getByRole('navigation', { name: 'On this page' })).toBeVisible();
 });
 
 test('theme selection survives denied storage', async ({ page }) => {
@@ -116,12 +92,12 @@ for (const viewport of [
   { width: 1280, height: 800 },
   { width: 375, height: 800 },
 ]) {
-  for (const path of ['', 'showcase']) {
+  for (const path of ['', 'projects', 'projects/rag-agent', 'about']) {
     for (const mode of ['Noir', 'Paper'] as const) {
       test(`axe ${path || 'home'} ${mode} ${viewport.width}`, async ({ page }) => {
         await page.setViewportSize(viewport);
         await page.goto(path);
-        if (mode === 'Paper') await page.getByRole('button', { name: 'Paper', exact: true }).click();
+        if (mode === 'Paper') await page.getByRole('button', { name: 'Paper', exact: true }).first().click();
         await expectClean(page);
       });
     }
