@@ -13,11 +13,7 @@ status: active
 date: 2026-09-24
 ---
 
-> Placeholder written in step 2. The case study is filled from the repository README in step 4.
-
-## TL;DR
-
-TODO: one measured result.
+> Placeholder: this case study is filled from the repository README in step 4.
 
 ## Problem
 

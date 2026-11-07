@@ -1,6 +1,6 @@
 import { z } from 'astro/zod';
 import { describe, expect, it } from 'vitest';
-import { featuredProjects, projectSchema, projectTags, sortProjects, tagKey } from './projects';
+import { checkCaseStudy, featuredProjects, projectSchema, projectTags, sortProjects, tagKey } from './projects';
 import { project } from '../test/fixtures';
 
 const schema = projectSchema(z.string());
@@ -54,5 +54,50 @@ describe('catalogue helpers', () => {
   it('builds stable keys for tags', () => {
     expect(tagKey('Vector search')).toBe('vector-search');
     expect(tagKey('C++')).toBe('c');
+  });
+});
+
+describe('checkCaseStudy', () => {
+  const body = [
+    '## Problem',
+    'Slow search.',
+    '## Architecture',
+    '```mermaid',
+    'flowchart LR',
+    '## not a heading inside a fence',
+    '```',
+    '## Technical choices & trade-offs',
+    'IVF over HNSW.',
+    '## Results',
+    '| k | recall |',
+    '| - | ------ |',
+    '| 10 | 0.92 |',
+    '## Limitations & next steps',
+    'No GPU.',
+    '## Links',
+    '- repo',
+  ].join('\n');
+
+  it('accepts a complete case study', () => {
+    expect(checkCaseStudy(body, ['Recall@10 of 0.92'])).toEqual([]);
+  });
+
+  it('requires a number in the TL;DR unless marked TODO', () => {
+    expect(checkCaseStudy(body, ['Fast and accurate'])).toHaveLength(1);
+    expect(checkCaseStudy(body, ['TODO: measure recall'])).toEqual([]);
+  });
+
+  it('rejects missing or reordered sections', () => {
+    const swapped = body.replace('## Problem', '## Results\n').replace(/## Results\n\| k/, '## Problem\n| k');
+    expect(checkCaseStudy(swapped, ['1'])[0]).toMatch(/sections must be exactly/);
+    expect(checkCaseStudy(body.replace('## Links\n- repo', ''), ['1'])[0]).toMatch(/sections must be exactly/);
+  });
+
+  it('asks for a diagram and a table', () => {
+    const plain = body.replace(/```mermaid[\s\S]*?```/, 'Text only.').replace(/\|[\s\S]*?0\.92 \|/, 'Good.');
+    expect(checkCaseStudy(plain, ['1'])).toEqual([
+      'Architecture needs a Mermaid diagram or an image',
+      'Results needs a table or a chart',
+    ]);
   });
 });

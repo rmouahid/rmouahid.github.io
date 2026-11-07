@@ -51,3 +51,51 @@ export const tagKey = (tag: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
+
+// Body of a case study, after the TL;DR that the page draws from the frontmatter.
+export const CASE_STUDY_SECTIONS = [
+  'Problem',
+  'Architecture',
+  'Technical choices & trade-offs',
+  'Results',
+  'Limitations & next steps',
+  'Links',
+] as const;
+
+const TODO = /\bTODO:/;
+
+// Level-2 headings and their content, ignoring fenced code blocks.
+export function sections(body: string): { title: string; content: string }[] {
+  const found: { title: string; content: string }[] = [];
+  let fenced = false;
+  for (const line of body.split('\n')) {
+    if (/^(```|~~~)/.test(line.trim())) fenced = !fenced;
+    const heading = !fenced && line.match(/^##\s+(.+?)\s*#*\s*$/);
+    if (heading) found.push({ title: heading[1], content: '' });
+    else if (found.length > 0) found[found.length - 1].content += `${line}\n`;
+  }
+  return found;
+}
+
+// Editorial rules a schema cannot express. An explicit `TODO:` marks a gap the author still has to fill.
+export function checkCaseStudy(body: string, tldr: string[]): string[] {
+  const errors: string[] = [];
+  const found = sections(body);
+  const titles = found.map(section => section.title);
+  if (titles.join('|') !== CASE_STUDY_SECTIONS.join('|')) {
+    errors.push(`sections must be exactly: ${CASE_STUDY_SECTIONS.join(', ')} (found: ${titles.join(', ') || 'none'})`);
+  }
+  if (!tldr.some(line => /\d/.test(line) || TODO.test(line))) {
+    errors.push('tldr needs a measured result (a number) or an explicit TODO:');
+  }
+  const content = (title: string) => found.find(section => section.title === title)?.content ?? '';
+  const architecture = content('Architecture');
+  if (architecture && !/```mermaid|!\[|<img\b/.test(architecture) && !TODO.test(architecture)) {
+    errors.push('Architecture needs a Mermaid diagram or an image');
+  }
+  const results = content('Results');
+  if (results && !/^\s*\|.*\|\s*$/m.test(results) && !/!\[|<img\b/.test(results) && !TODO.test(results)) {
+    errors.push('Results needs a table or a chart');
+  }
+  return errors;
+}
