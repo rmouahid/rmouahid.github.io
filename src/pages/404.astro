@@ -1,0 +1,32 @@
+---
+import { Icon } from 'astro-icon/components';
+import Section from '../components/Section.astro';
+import Layout from '../layouts/Layout.astro';
+import { route } from '../lib/urls';
+
+const base = import.meta.env.BASE_URL;
+const link =
+  'flex items-center gap-2 rounded border border-outline px-4 py-2.5 font-mono text-sm text-fg transition-colors hover:border-accent';
+---
+
+<Layout title="Page not found" description="This page does not exist.">
+  <Section last>
+    <div class="space-y-6">
+      <p class="eyebrow">404</p>
+      <h1 class="font-serif text-4xl text-fg">Page not found.</h1>
+      <p class="max-w-xl text-muted">
+        This page does not exist, or it moved. The case studies are all on the projects page.
+      </p>
+      <div class="flex flex-wrap gap-3">
+        <a href={route('/projects', base)} class={link}>
+          <Icon name="lucide:folder-git-2" class="size-4 text-muted" aria-hidden="true" />
+          Projects
+        </a>
+        <a href={route('/', base)} class={link}>
+          <Icon name="lucide:arrow-left" class="size-4 text-muted" aria-hidden="true" />
+          Home
+        </a>
+      </div>
+    </div>
+  </Section>
+</Layout>

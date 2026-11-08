@@ -56,3 +56,9 @@ The browser matrix needs Playwright's Chromium: `npx playwright install chromium
 
 `SITE_URL` and `SITE_BASE` set the public origin and the sub-path, for example
 `SITE_URL=https://rmouahid.github.io SITE_BASE=/portfolio/ npm run build`.
+
+## Deploy
+
+`.github/workflows/deploy.yml` builds with the official Astro action and publishes to GitHub Pages on every push to
+`main`. The repository is `rmouahid/rmouahid.github.io`, served at the root of https://rmouahid.github.io, so
+`SITE_BASE` stays unset. In the repository settings, Pages → Source must be **GitHub Actions**.
