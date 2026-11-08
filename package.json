@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "format:check": "prettier --check .",
-    "test:contracts": "node --test tests/ci.test.mjs tests/adoption.test.mjs tests/browser-matrix.test.mjs",
+    "test:contracts": "node --test tests/ci.test.mjs tests/deploy.test.mjs tests/adoption.test.mjs tests/browser-matrix.test.mjs",
     "verify:imports": "node --test tests/verify-imports.test.mjs",
     "verify:matrix": "node scripts/verify-matrix.mjs",
     "verify": "npm run test:contracts && npm test && npm run check && npm run format:check && npm run verify:imports && npm run verify:matrix"
