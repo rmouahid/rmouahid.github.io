@@ -17,3 +17,9 @@ test('every action used by any workflow is pinned to a full commit SHA', () => {
     }
   }
 });
+
+test('Dependabot keeps the pinned actions up to date on develop', () => {
+  const config = readFileSync('.github/dependabot.yml', 'utf8');
+  assert.match(config, /package-ecosystem: github-actions/);
+  assert.match(config, /target-branch: develop/);
+});
