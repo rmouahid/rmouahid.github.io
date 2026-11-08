@@ -17,6 +17,22 @@ if (blocks.length > 0) {
     return host;
   });
 
+  // A left-to-right flowchart wider than the column would be scaled down until unreadable: draw it top-down.
+  const topDown = (source: string) =>
+    source.replace(/^(\s*(?:flowchart|graph)\s+)(LR|RL)\b/m, '$1TD').replace(/^(\s*direction\s+)(LR|RL)\b/gm, '$1TB');
+  const viewBoxWidth = (svg: string) => Number(svg.match(/viewBox="[\d.-]+ [\d.-]+ ([\d.]+)/)?.[1] ?? 0);
+  const natural = (host: HTMLElement) => host.querySelector('svg')?.viewBox.baseVal?.width ?? 0;
+  const available = (host: HTMLElement) => host.clientWidth - 32;
+
+  // Never shrink a diagram below 70 % of its natural size; the figure scrolls sideways instead.
+  const fit = (host: HTMLElement) => {
+    const svg = host.querySelector('svg');
+    const width = natural(host);
+    if (!svg || !width) return;
+    svg.style.maxWidth = 'none';
+    svg.style.width = `${Math.min(width, Math.max(available(host), width * 0.7))}px`;
+  };
+
   const color = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   let run = 0;
 
@@ -45,9 +61,14 @@ if (blocks.length > 0) {
     });
     for (const [index, host] of hosts.entries()) {
       try {
-        const { svg } = await mermaid.render(`mermaid-${index}-${current}`, sources[index]);
+        let { svg } = await mermaid.render(`mermaid-${index}-${current}`, sources[index]);
+        if (viewBoxWidth(svg) * 0.6 > available(host)) {
+          ({ svg } = await mermaid.render(`mermaid-${index}-${current}-td`, topDown(sources[index])));
+        }
         if (current !== run) return;
         host.innerHTML = svg;
+        fit(host);
+        host.dataset.ready = '';
       } catch {
         // Keep the source readable if the diagram does not parse.
         blocks[index].hidden = false;
@@ -57,6 +78,11 @@ if (blocks.length > 0) {
   };
 
   void draw();
+  let resized: number | undefined;
+  window.addEventListener('resize', () => {
+    clearTimeout(resized);
+    resized = window.setTimeout(() => void draw(), 250);
+  });
   new MutationObserver(() => void draw()).observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['data-theme'],

@@ -61,6 +61,32 @@ test('a project card opens its case study', async ({ page }) => {
   await expect(page.getByRole('navigation', { name: 'On this page' })).toBeVisible();
 });
 
+test('escape closes the cover lightbox and returns focus', async ({ page }) => {
+  await page.goto('projects/novit');
+  const open = page.getByRole('button', { name: 'Full size' });
+  await open.focus();
+  await open.click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+  await expect(open).toBeFocused();
+});
+
+test('case study diagrams are drawn and stay legible', async ({ page }) => {
+  for (const width of [375, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('projects/rag-agent');
+    const svg = page.locator('.mermaid-diagram[data-ready] svg').first();
+    await expect(svg).toBeVisible();
+    const scale = await svg.evaluate(node => {
+      const element = node as SVGSVGElement;
+      return element.getBoundingClientRect().width / element.viewBox.baseVal.width;
+    });
+    expect(scale).toBeGreaterThanOrEqual(0.69);
+  }
+});
+
 test('theme selection survives denied storage', async ({ page }) => {
   await page.addInitScript(() => {
     const denied = () => {
