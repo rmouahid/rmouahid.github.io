@@ -2,9 +2,9 @@ import { expect, test } from '@playwright/test';
 
 const paths = [
   '',
-  'about',
-  'projects',
-  'projects/rag-agent',
+  'about/',
+  'projects/',
+  'projects/rag-agent/',
   'og/rag-agent.png',
   'og/default.png',
   'rayan-mouahid-cv.pdf',
@@ -29,9 +29,23 @@ for (const removed of ['docs', 'showcase', 'integrations', 'pt-br']) {
   });
 }
 
+test('internal page links point at the served URL, without a redirect', async ({ page }) => {
+  for (const path of ['', 'projects/', 'about/']) {
+    await page.goto(path);
+    const hrefs = await page
+      .locator('main a[href^="/"], header a[href^="/"]')
+      .evaluateAll(nodes => nodes.map(node => node.getAttribute('href') ?? ''));
+    for (const href of hrefs) {
+      const pathname = href.split('#')[0];
+      if (/\.[a-z0-9]+$/i.test(pathname)) continue;
+      expect(pathname.endsWith('/'), href).toBe(true);
+    }
+  }
+});
+
 test('every internal link on the main pages resolves', async ({ page, baseURL }) => {
   const seen = new Set<string>();
-  for (const path of ['', 'projects', 'about', 'projects/rag-agent']) {
+  for (const path of ['', 'projects/', 'about/', 'projects/rag-agent/']) {
     await page.goto(path);
     const hrefs = await page
       .locator('a[href]')

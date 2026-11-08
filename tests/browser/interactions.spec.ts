@@ -20,7 +20,7 @@ test('mobile navigation is reachable from the keyboard', async ({ page }) => {
 
 test('the home page has no horizontal scroll at 375px', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
-  for (const path of ['', 'projects', 'about', 'projects/rag-agent']) {
+  for (const path of ['', 'projects/', 'about/', 'projects/rag-agent/']) {
     await page.goto(path);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow, path || 'home').toBeLessThanOrEqual(0);
@@ -28,14 +28,14 @@ test('the home page has no horizontal scroll at 375px', async ({ page }) => {
 });
 
 test('project search announces an empty result', async ({ page }) => {
-  await page.goto('projects');
+  await page.goto('projects/');
   await page.getByRole('searchbox', { name: 'Search projects' }).fill('zzzz-not-real');
   await expect(page.getByText('No project matches these filters.')).toBeVisible();
   await expect(page.locator('#search-status')).toContainText('0 projects');
 });
 
 test('tag filters narrow the list and survive a reload', async ({ page }) => {
-  await page.goto('projects');
+  await page.goto('projects/');
   const all = await page.locator('[data-project]').count();
   const filter = page.getByRole('group', { name: 'Filter by tag' }).getByRole('button').nth(1);
   const key = await filter.getAttribute('data-tag');
@@ -57,12 +57,12 @@ test('tag filters narrow the list and survive a reload', async ({ page }) => {
 test('a project card opens its case study', async ({ page }) => {
   await page.goto('');
   await page.locator('ul[aria-labelledby="featured-projects"] a').first().click();
-  await expect(page).toHaveURL(/\/projects\/[a-z0-9-]+$/);
+  await expect(page).toHaveURL(/\/projects\/[a-z0-9-]+\/$/);
   await expect(page.getByRole('navigation', { name: 'On this page' })).toBeVisible();
 });
 
 test('escape closes the cover lightbox and returns focus', async ({ page }) => {
-  await page.goto('projects/novit');
+  await page.goto('projects/novit/');
   const open = page.getByRole('button', { name: 'Full size' });
   await open.focus();
   await open.click();
@@ -76,7 +76,7 @@ test('escape closes the cover lightbox and returns focus', async ({ page }) => {
 test('case study diagrams are drawn and stay legible', async ({ page }) => {
   for (const width of [375, 1280]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto('projects/rag-agent');
+    await page.goto('projects/rag-agent/');
     const svg = page.locator('.mermaid-diagram[data-ready] svg').first();
     await expect(svg).toBeVisible();
     const scale = await svg.evaluate(node => {
@@ -118,7 +118,7 @@ for (const viewport of [
   { width: 1280, height: 800 },
   { width: 375, height: 800 },
 ]) {
-  for (const path of ['', 'projects', 'projects/rag-agent', 'about']) {
+  for (const path of ['', 'projects/', 'projects/rag-agent/', 'about/']) {
     for (const mode of ['Noir', 'Paper'] as const) {
       test(`axe ${path || 'home'} ${mode} ${viewport.width}`, async ({ page }) => {
         await page.setViewportSize(viewport);

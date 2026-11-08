@@ -1,9 +1,12 @@
 const normalize = (value: string) => '/' + value.split('/').filter(Boolean).join('/');
 
-// A site path under the deployment base, keeping an optional #hash.
+// Pages are folders (/projects/), files keep their name (/rayan-mouahid-cv.pdf).
+const withSlash = (path: string) => (path === '/' || /\.[a-z0-9]+$/i.test(path) ? path : `${path}/`);
+
+// A site path under the deployment base, ending with "/" as GitHub Pages serves it, keeping an optional #hash.
 export function route(path: string, base = '/'): string {
   const [pathname, hash] = path.split('#');
-  const result = normalize(`${base}/${pathname}`);
+  const result = withSlash(normalize(`${base}/${pathname}`));
   return hash === undefined ? result : `${result}#${hash}`;
 }
 
@@ -17,3 +20,5 @@ export function asset(path: string, base = '/'): string {
   const file = normalize(path);
   return prefix === '/' ? file : `${prefix}${file}`;
 }
+
+export const canonicalPath = (pathname: string) => withSlash(normalize(pathname));

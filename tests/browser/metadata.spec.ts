@@ -18,7 +18,7 @@ test('canonical, favicon and social image follow the base', async ({ page }) => 
 });
 
 test('a case study has its own social card', async ({ page }) => {
-  await page.goto('projects/rag-agent');
+  await page.goto('projects/rag-agent/');
   const image = await page.locator('meta[property="og:image"]').getAttribute('content');
   expect(image).toBe(new URL(`${prefix}/og/rag-agent.png`, site.url).href);
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');

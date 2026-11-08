@@ -1,5 +1,7 @@
-// Both arguments are site paths in the same locale (e.g. /pt-br/docs).
+const trim = (path: string) => path.replace(/\/+$/, '') || '/';
+
+// Both arguments are site paths, with or without a trailing slash.
 export function isActive(href: string, pathname: string, home = '/'): boolean {
-  const path = pathname.replace(/\/$/, '') || '/';
-  return href === home ? path === home : path === href || path.startsWith(`${href}/`);
+  const [link, path, root] = [trim(href), trim(pathname), trim(home)];
+  return link === root ? path === root : path === link || path.startsWith(`${link}/`);
 }

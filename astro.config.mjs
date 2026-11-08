@@ -17,7 +17,8 @@ export default defineConfig({
     syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid', 'math'] },
     shikiConfig: { theme: terminalNoir },
   },
-  trailingSlash: 'never',
+  // GitHub Pages serves folders with a trailing slash; links match it so no click goes through a redirect.
+  trailingSlash: 'always',
   build: {
     format: 'directory',
     inlineStylesheets: 'always',

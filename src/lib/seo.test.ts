@@ -4,7 +4,7 @@ import { pageMetadata, robotsBody } from './seo';
 
 it('builds absolute base-aware canonical and social image links', () => {
   const meta = pageMetadata('https://example.com', '/portfolio/', '/portfolio/projects/', 'Projects', 'All');
-  expect(meta.canonical).toBe('https://example.com/portfolio/projects');
+  expect(meta.canonical).toBe('https://example.com/portfolio/projects/');
   expect(meta.image).toBe('https://example.com/portfolio/og/default.png');
 });
 

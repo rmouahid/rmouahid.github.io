@@ -1,4 +1,4 @@
-import { asset } from './urls';
+import { asset, canonicalPath } from './urls';
 
 export function pageMetadata(
   origin: string,
@@ -8,11 +8,10 @@ export function pageMetadata(
   description: string,
   image = '/og/default.png',
 ) {
-  const canonicalPath = pathname.replace(/\/$/, '') || '/';
   return {
     title,
     description,
-    canonical: new URL(canonicalPath, origin).href,
+    canonical: new URL(canonicalPath(pathname), origin).href,
     image: new URL(asset(image, base), origin).href,
   };
 }
