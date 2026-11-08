@@ -1,15 +1,13 @@
-// Tables and diagrams that scroll sideways on a narrow screen must be reachable from the keyboard.
-const selector = '.prose table, .prose .mermaid-diagram';
+// Tables that scroll sideways on a narrow screen must be reachable from the keyboard (diagrams: see mermaid.ts).
+const selector = '.prose table';
 
 function update() {
   for (const element of document.querySelectorAll<HTMLElement>(selector)) {
     const scrolls = element.scrollWidth > element.clientWidth + 1;
     if (scrolls) {
       element.tabIndex = 0;
-      element.setAttribute('role', element.tagName === 'TABLE' ? 'table' : 'img');
       if (!element.hasAttribute('aria-label')) {
-        const label = element.tagName === 'TABLE' ? 'Table, scrolls horizontally' : 'Diagram, scrolls horizontally';
-        element.setAttribute('aria-label', label);
+        element.setAttribute('aria-label', 'Table, scrolls horizontally');
         element.dataset.autoLabel = '';
       }
     } else {
@@ -29,8 +27,3 @@ const schedule = () => {
   pending = window.setTimeout(update, 100);
 };
 window.addEventListener('resize', schedule);
-// Diagrams are drawn asynchronously; re-check once they land.
-new MutationObserver(schedule).observe(document.querySelector('.prose') ?? document.body, {
-  childList: true,
-  subtree: true,
-});

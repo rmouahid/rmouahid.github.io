@@ -31,6 +31,9 @@ if (blocks.length > 0) {
     if (!svg || !width) return;
     svg.style.maxWidth = 'none';
     svg.style.width = `${Math.min(width, Math.max(available(host), width * 0.7))}px`;
+    // A figure that scrolls sideways must be reachable from the keyboard as soon as it is drawn.
+    if (host.scrollWidth > host.clientWidth + 1) host.tabIndex = 0;
+    else host.removeAttribute('tabindex');
   };
 
   const color = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
