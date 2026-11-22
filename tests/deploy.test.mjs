@@ -10,6 +10,15 @@ test('GitHub Pages deploys main with the official Astro action at the site root'
   assert.doesNotMatch(workflow, /SITE_BASE/);
 });
 
+test('GitHub Pages requires CI verification before building and deploying', () => {
+  const workflow = readFileSync('.github/workflows/deploy.yml', 'utf8');
+  const ci = readFileSync('.github/workflows/ci.yml', 'utf8');
+  assert.match(ci, /^  workflow_call:$/m);
+  assert.match(workflow, /^  verify:\n    uses: \.\/\.github\/workflows\/ci\.yml$/m);
+  assert.match(workflow, /^  build:\n    needs: verify$/m);
+  assert.match(workflow, /^  deploy:\n    needs: build$/m);
+});
+
 test('deploy actions are pinned to a commit and permissions are scoped per job', () => {
   const workflow = readFileSync('.github/workflows/deploy.yml', 'utf8');
   for (const [, action, ref] of workflow.matchAll(/uses: ([\w.-]+\/[\w.-]+)@(\S+)/g)) {
